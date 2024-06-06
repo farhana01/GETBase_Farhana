@@ -49,6 +49,7 @@ const int maxNumVars = numNodes;
 const int maxEpiLen = 128;
 int fadingImmunity;
 int immuStr;
+double youngPopulation;
 
 // Genetic Algorithm Variables
 SDA *SDAPop;                // Stores the Population of SDAs
@@ -149,6 +150,7 @@ int getArgs(char *args[]) {
     } else { // no immunity
         fadingImmunity = -1;
     }
+    youngPopulation = stod(args[20]);
     cout << "Arguments Captured!" << endl;
     return 0;
 }
@@ -359,13 +361,24 @@ double epiLenFitness(int idx, bool final) {
             varAlphas[var] = -1;
         }
         varAlphas[0] = alpha;
+        // creating vector of granted immunity for each node
+        vector<double> immunityGranted(numNodes,1.0);
+        int oldNodeCount = 0;
+        int youngNodeCount = numNodes; // default everyone is young;
+        if(youngPopulation<1){
+            youngNodeCount = numNodes*youngPopulation;
+            oldNodeCount = numNodes - youngNodeCount;
+            for(int i=0; i<oldNodeCount;i++){
+                immunityGranted[i] = 0.5;
+            }
+        }
 
         for (int epi = 0; epi < (final ? 10 * numSampEpis : numSampEpis); ++epi) {
             int epiCnt = 0;
             do {
                 epiLen = network.SIRwithVariants(0, varAlphas, varCoupled, newVarProb, numVars, maxNumVars, maxEpiLen,
                                                  varProfs, varDNAs, varParents, varStarts, varInfSeverity, initOneBits,
-                                                 minEdits, maxEdits, varAlphaDelta, totInf, fadingImmunity, immuStr);
+                                                 minEdits, maxEdits, varAlphaDelta, totInf, fadingImmunity, immuStr, immunityGranted);
                 epiCnt += 1;
             } while (epiLen < minEpiLen && epiCnt < shortEpiRetrys);
             sum += epiLen;
@@ -394,6 +407,7 @@ double epiSpreadFitness(int idx, bool final) {
     int epiLen;
     int sum = 0;
     int totInf;
+
     bestEpiVal[idx] = 0;
 
     if (newVarProb == 0.0) {
@@ -422,12 +436,24 @@ double epiSpreadFitness(int idx, bool final) {
         }
         varAlphas[0] = alpha;
 
+        // creating vector of granted immunity for each node
+        vector<double> immunityGranted(numNodes,1.0);
+        int oldNodeCount = 0;
+        int youngNodeCount = numNodes; // default everyone is young;
+        if(youngPopulation<1){
+            youngNodeCount = numNodes*youngPopulation;
+            oldNodeCount = numNodes - youngNodeCount;
+            for(int i=0; i<oldNodeCount;i++){
+                immunityGranted[i] = 0.5;
+            }
+        }
+
         for (int epi = 0; epi < (final ? 10 * numSampEpis : numSampEpis); ++epi) {
             int epiCnt = 0;
             do {
                 epiLen = network.SIRwithVariants(0, varAlphas, varCoupled, newVarProb, numVars, maxNumVars, maxEpiLen,
                                                  varProfs, varDNAs, varParents, varStarts, varInfSeverity, initOneBits,
-                                                 minEdits, maxEdits, varAlphaDelta, totInf, fadingImmunity, immuStr);
+                                                 minEdits, maxEdits, varAlphaDelta, totInf, fadingImmunity, immuStr, immunityGranted);
                 epiCnt += 1;
             } while (epiLen < minEpiLen && epiCnt < shortEpiRetrys);
             sum += totInf;
@@ -475,12 +501,24 @@ double epiSeverityFitness(int idx, bool final) {
         }
         varAlphas[0] = alpha;
 
+        // creating vector of granted immunity for each node
+        vector<double> immunityGranted(numNodes,1.0);
+        int oldNodeCount = 0;
+        int youngNodeCount = numNodes; // default everyone is young;
+        if(youngPopulation<1){
+            youngNodeCount = numNodes*youngPopulation;
+            oldNodeCount = numNodes - youngNodeCount;
+            for(int i=0; i<oldNodeCount;i++){
+                immunityGranted[i] = 0.5;
+            }
+        }
+
         for (int epi = 0; epi < (final ? 10 * numSampEpis : numSampEpis); ++epi) {
             int epiCnt = 0;
             do {
                 epiLen = network.SIRwithVariants(0, varAlphas, varCoupled, newVarProb, numVars, maxNumVars, maxEpiLen,
                                                  varProfs, varDNAs, varParents, varStarts, varInfSeverity, initOneBits,
-                                                 minEdits, maxEdits, varAlphaDelta, totInf, fadingImmunity, immuStr);
+                                                 minEdits, maxEdits, varAlphaDelta, totInf, fadingImmunity, immuStr, immunityGranted);
                 epiCnt += 1;
             } while (epiLen < minEpiLen && epiCnt < shortEpiRetrys);
             oneSum = 0;
