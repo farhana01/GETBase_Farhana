@@ -7,9 +7,11 @@ import numpy as np
 # Need to install on linux before use, and include as packages in PyCharm
 from graphviz import Graph  # Network visualizer (nodes and edges)
 
+import copy
+
 raw_data_path = "./Output/"
 figure_path = "./Figures/"
-main_filename = "best01.dat"
+main_filename = "best.dat"
 num_runs = 30
 lower_better = False
 precision = 6
@@ -303,6 +305,65 @@ def node_deg_hist(el: []):
     pass
 
 
+def make_box(data, labels, title, out_path, vert_lbl):
+    colours = ["#02a5ff", "#ff3300", "#66cc33", "#ffcc00", "#123456"]
+
+    data = copy.deepcopy(data)
+    plt.style.use("seaborn-v0_8")
+    plt.rc('xtick', labelsize=10)
+    plt.rc('ytick', labelsize=10)
+
+    # Create a figure object
+    f = plt.figure()
+    f.set_figheight(8)
+    f.set_figwidth(6)
+    plot = f.add_subplot(111)
+
+    # Calculate x values and generate the plot.
+    xs = [i + 1 for i in range(len(data))]
+    just_fits = [[data[exp][x][1] for x in range(len(data[exp]))] for exp in range(len(data))]
+    vp = plot.violinplot(just_fits, xs, showmedians=True, widths=0.85)
+
+    # Make it fancy!
+    for pc in vp["bodies"]:
+        pc.set_facecolor("#5770DB")
+        pc.set_linewidth(1)
+        pc.set_edgecolor("black")
+        pass
+
+    # for pc, color in zip(vp['bodies'], colours):
+    #     pc.set_facecolor(color)
+    #     pc.set_linewidth(1)
+    #     pc.set_alpha(1)
+    #     pc.set_color(color)
+    # for idx, col in enumerate(colours):
+    #     for partname in ('cbars', 'cmins', 'cmaxes', 'cmedians'):
+    #         vc = vp[partname][idx]
+    #         vc.set_linewidth(1)
+    #         vc.set_alpha(1)
+    #         vc.set_color(col)
+    #         pass
+    #     pass
+
+    plot.grid(visible="True", axis="y", which='minor', color="white", linewidth=0.5)
+    plt.minorticks_on()
+    # plt.yscale('log')
+
+    f.suptitle(title, fontsize=14)
+    plot.set_xlabel(vert_lbl, fontsize=12)
+    plot.set_ylabel("Fitness", fontsize=12)
+
+    # plt.yticks(ticks)
+    plt.xticks([x + 1 for x in range(len(data))], labels=labels, rotation=25, fontsize=10)
+
+    # f.subplots_adjust(bottom=0.25, top=0.93, left=0.1, right=0.99)
+    f.tight_layout()
+    f.savefig(out_path + "Boxplot " + title + ".png", dpi=500)
+
+    plt.close()
+    pass
+
+
 def main():
     print("START")
     folder_names = os.listdir(raw_data_path)
@@ -318,6 +379,8 @@ def main():
         dat = get_data(raw_data_path + fold + "/" + main_filename)
         data.append(dat)
         pass
+
+    make_box(data, [str(x) for x in range(len(data))], "Compare Results", figure_path, "Experiment")
 
     # data[exp_num][run_num][1] = run's fitness
     # data[exp_num][run_num][2][:] = run's histogram

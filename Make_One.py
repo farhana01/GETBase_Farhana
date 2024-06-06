@@ -10,15 +10,18 @@ def main():
         cnt = 0
         with open(tld + fold + "/best.dat", "w") as out:
             for idx in best_idxs:
-                with open(tld + fold + "/best" + idx + ".dat", "r") as inn:
-                    lines = inn.readlines()
-                    for line in lines:
-                        out.writelines(line)
+                inner_files = os.listdir(tld + fold + "/")
+                # If the file exists
+                if str("best" + idx + ".dat") in inner_files:
+                    with open(tld + fold + "/best" + idx + ".dat", "r") as inn:
+                        lines = inn.readlines()
+                        for line in lines:
+                            out.writelines(line)
+                        pass
                     pass
                 pass
             pass
         pass
-
     pass
 
 
