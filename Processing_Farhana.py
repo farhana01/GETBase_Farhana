@@ -306,7 +306,8 @@ def node_deg_hist(el: []):
 
 
 def make_box(data, labels, title, out_path, vert_lbl):
-    colours = ["#02a5ff", "#ff3300", "#66cc33", "#ffcc00", "#123456"]
+    # colours = ["#02a5ff", "#ff3300", "#66cc33", "#ffcc00", "#123456"]
+    colours = ["#02a5ff", "#ff3300"]
 
     data = copy.deepcopy(data)
     plt.style.use("seaborn-v0_8")
@@ -324,26 +325,17 @@ def make_box(data, labels, title, out_path, vert_lbl):
     just_fits = [[data[exp][x][1] for x in range(len(data[exp]))] for exp in range(len(data))]
     vp = plot.violinplot(just_fits, xs, showmedians=True, widths=0.85)
 
-    # Make it fancy!
-    for pc in vp["bodies"]:
-        pc.set_facecolor("#5770DB")
-        pc.set_linewidth(1)
-        pc.set_edgecolor("black")
+    for pc, color in zip(vp['bodies'], colours):
+        pc.set_linewidth(2)
+        pc.set_alpha(0.5)
+        pc.set_color(color)
         pass
-
-    # for pc, color in zip(vp['bodies'], colours):
-    #     pc.set_facecolor(color)
-    #     pc.set_linewidth(1)
-    #     pc.set_alpha(1)
-    #     pc.set_color(color)
-    # for idx, col in enumerate(colours):
-    #     for partname in ('cbars', 'cmins', 'cmaxes', 'cmedians'):
-    #         vc = vp[partname][idx]
-    #         vc.set_linewidth(1)
-    #         vc.set_alpha(1)
-    #         vc.set_color(col)
-    #         pass
-    #     pass
+    for partname in ('cbars', 'cmins', 'cmaxes', 'cmedians'):
+        vc = vp[partname]
+        vc.set_linewidth(2)
+        vc.set_alpha(1)
+        vc.set_colors(colours)
+        pass
 
     plot.grid(visible="True", axis="y", which='minor', color="white", linewidth=0.5)
     plt.minorticks_on()
@@ -354,7 +346,7 @@ def make_box(data, labels, title, out_path, vert_lbl):
     plot.set_ylabel("Fitness", fontsize=12)
 
     # plt.yticks(ticks)
-    plt.xticks([x + 1 for x in range(len(data))], labels=labels, rotation=25, fontsize=10)
+    plt.xticks([x + 1 for x in range(len(data))], labels=labels, rotation=0, fontsize=10)
 
     # f.subplots_adjust(bottom=0.25, top=0.93, left=0.1, right=0.99)
     f.tight_layout()
@@ -375,16 +367,30 @@ def main():
         pass
 
     data = []
-    for fold in folder_names:
-        dat = get_data(raw_data_path + fold + "/" + main_filename)
-        data.append(dat)
+    # exp_info = ["Before the Change", "After the Change"]
+    exp_info = []
+    with open("Exp Table.dat", "w") as f:
+        for fold_idx, fold in enumerate(folder_names):
+            dat = get_data(raw_data_path + fold + "/" + main_filename)
+            data.append(dat)
+            exp_info.append("EXP" + str(fold_idx + 1))
+            f.write("EXP" + str(fold_idx + 1))
+            f.write("\t")
+            f.write(fold)
+            f.write("\n")
+            pass
         pass
 
-    make_box(data, [str(x) for x in range(len(data))], "Compare Results", figure_path, "Experiment")
+    make_box(data, exp_info, "Compare Results", figure_path, "Experiment")
 
+    # data[exp_num][run_num][0] = run number
     # data[exp_num][run_num][1] = run's fitness
-    # data[exp_num][run_num][2][:] = run's histogram
-    # data[exp_num][run_num][3][:] = variant's parent's index for all variants
+    # data[exp_num][run_num][2][:] = run's best epidemic infection severity histogram
+    # data[exp_num][run_num][3][:] = variants' parent's index for all variants in the best epidemic for this run
+    # data[exp_num][run_num][4][:] = variants' start date for all variants in the best epidemic for this run
+    # data[exp_num][run_num][5][:][:] = epidemic profiles for all variants in the best epidemic for this run
+    # data[exp_num][run_num][6] = number of edges in the best network for this run
+    # data[exp_num][run_num][7][:][:] = edge lists for the best network for this run
 
     plt.style.use("seaborn-v0_8-dark")
     plt.rc('xtick', labelsize=8)
