@@ -29,7 +29,7 @@ public:
     SIRwithVariants(int p0, double varAlphas[], bool coupled, double newVarProb, int &varCnt, int maxVars, int maxLen,
                     vector<int> varProfs[], vector<vector<int>> &varDNAs, int varParents[],
                     int varStarts[], int varInfSeverity[], int initBits, int minEdits, int maxEdits,
-                    double alphaDelta, int &totInf, int fadingImmunity, int immuStr);
+                    double alphaDelta, int &totInf, int fadingImmunity, int immuStr, vector<double> immunityGranted);
 
 protected:
     int numNodes;
